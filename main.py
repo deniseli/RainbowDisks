@@ -39,8 +39,8 @@ class Circle():
 
     def color_segmentation(self):
         hue = 1.5*((WIDTH-self.x) + self.y) / (WIDTH+HEIGHT)
-        if self.r < 0.5:
-            x = 0.5*(0.5 - self.r)
+        if self.r < 1.0:
+            x = 0.2*(1.0 - self.r)
             hue += random.uniform(-x,x)
         hue = 1.0*int(hue * 7) / 7
         return hue
