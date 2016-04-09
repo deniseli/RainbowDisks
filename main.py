@@ -14,7 +14,7 @@ from skimage import feature
 
 WIDTH = 100
 HEIGHT = 100
-SPACE = 0.5
+SPACE = 0.25
 
 class Circle():
 
@@ -23,7 +23,7 @@ class Circle():
         self.y = y
         self.r = float(r)
         self.alive = True
-        self.growth = random.uniform(0.1, 0.3)
+        self.growth = random.uniform(0.05, 0.2)
 
     def update(self):
         if not self.alive: return
@@ -37,9 +37,16 @@ class Circle():
             self.r -= self.growth
             self.alive = False
 
-    def to_draw(self):
+    def color_segmentation(self):
         hue = 1.5*((WIDTH-self.x) + self.y) / (WIDTH+HEIGHT)
-        rgb = colorsys.hsv_to_rgb(hue, 0.99, 0.99)
+        if self.r < 0.5:
+            x = 0.5*(0.5 - self.r)
+            hue += random.uniform(-x,x)
+        hue = 1.0*int(hue * 7) / 7
+        return hue
+
+    def to_draw(self):
+        rgb = colorsys.hsv_to_rgb(self.color_segmentation(), 0.99, 0.99)
         rgb = (rgb[0] * 256, rgb[1] * 256, rgb[2] * 256)
         hex = '#%02x%02x%02x' % rgb
         return '''<circle cx="%s" cy="%s" r="%s" stroke-width="0" fill="%s"/>\n'''%(self.y, self.x, self.r, hex)
@@ -67,7 +74,7 @@ def normal(maxn):
 def rand_little_circle():
     x = normal(WIDTH)
     y = normal(HEIGHT)
-    r = 0.2
+    r = 0.15
     while blocked(Circle(x,y,r+SPACE)):
         x = normal(WIDTH)
         y = normal(HEIGHT)
@@ -90,7 +97,7 @@ def blocked(circ):
     return False
 
 def collision_test(circles):
-    for i in range(len(circles)):
+    for i in range(len(circles) - 1):
         for j in range(i+1, len(circles)):
             if not circles[i].alive and not circles[j].alive:
                 continue
@@ -100,9 +107,13 @@ def collision_test(circles):
 
 def update(circles):
     circles.append(rand_little_circle())
+    for i in range(len(circles) - 1):
+        if collide(circles[i], circles[-1]):
+            circles.pop()
+            return
     collision_test(circles)
-    if not circles[-1].alive:
-        circles.pop()
+    #if not circles[-1].alive:
+    #    circles.pop()
     for c in circles:
         c.update()
 
@@ -120,8 +131,8 @@ def gen_mask():
     diff0 = lbig - blocks.shape[0]
     diff1 = lbig - blocks.shape[1]
     mask[diff0/2:diff0/2+blocks.shape[0], diff1/2:diff1/2+blocks.shape[1]] = blocks
-    plt.imshow(mask, cmap=plt.cm.gray)
-    plt.show()
+    #plt.imshow(mask, cmap=plt.cm.gray)
+    #plt.show()
     return mask
 
 if __name__ == "__main__":
@@ -130,6 +141,6 @@ if __name__ == "__main__":
     h = 100
     global block_mask
     block_mask = gen_mask()
-    while len(circles) < 800:
+    while len(circles) < 1200:
         update(circles)
     print to_draw(circles, w, h)
