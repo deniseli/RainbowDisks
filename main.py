@@ -112,8 +112,6 @@ def update(circles):
             circles.pop()
             return
     collision_test(circles)
-    #if not circles[-1].alive:
-    #    circles.pop()
     for c in circles:
         c.update()
 
@@ -135,12 +133,26 @@ def gen_mask():
     #plt.show()
     return mask
 
+def n_to_int(str, b):
+    try:
+        return int(str)
+    except:
+        return b
+
+def output(path, str):
+    f = open(path, 'w')
+    f.write(str)
+    f.close()
+
 if __name__ == "__main__":
+    impath = raw_input("Path to image file: ")
+    outpath = raw_input("Output file path (should be .html): ")
+    numCircs = n_to_int(raw_input("Number of circles (default 800): "), 800)
     circles = []
     w = 100
     h = 100
     global block_mask
     block_mask = gen_mask()
-    while len(circles) < 1200:
+    while len(circles) < numCircs:
         update(circles)
-    print to_draw(circles, w, h)
+    output(outpath, to_draw(circles, w, h))
