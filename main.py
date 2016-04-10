@@ -115,9 +115,9 @@ def update(circles):
     for c in circles:
         c.update()
 
-def gen_mask():
+def gen_mask(impath):
     mask = np.array((WIDTH, HEIGHT))
-    im = color.rgb2gray(misc.imread('square.jpg'))
+    im = color.rgb2gray(misc.imread(impath))
     l = np.max(im.shape)
     newshape = (int(1.0*im.shape[0]/l * WIDTH * 2), int(1.0*im.shape[1]/l * HEIGHT * 2))
     im = misc.imresize(im, newshape)
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     w = 100
     h = 100
     global block_mask
-    block_mask = gen_mask()
+    block_mask = gen_mask(impath)
     while len(circles) < numCircs:
         update(circles)
     output(outpath, to_draw(circles, w, h))
